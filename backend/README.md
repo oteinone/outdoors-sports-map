@@ -27,17 +27,28 @@ This backend provides cached proxy endpoints for the Helsinki ServiceMap API to 
 
 ## Endpoints
 
-| Endpoint | Original API | Cache TTL | Description |
-|----------|-------------|-----------|-------------|
-| `/api/services` | `/servicemap/v2/service/` | 24 hours | Service definitions |
-| `/api/units` | `/servicemap/v2/unit/` | 1 hour | Sports facilities and units |
-| `/api/announcements` | `/servicemap/v2/announcement/` | 1 hour | Public announcements |
+| Endpoint | Original API | Cache TTL | Rate Limit | Description |
+|----------|-------------|-----------|------------|-------------|
+| `/api/services` | `/servicemap/v2/service/` | 24 hours | 10/min* | Service definitions |
+| `/api/units` | `/servicemap/v2/unit/` | 1 hour | 10/min* | Sports facilities and units |
+| `/api/announcements` | `/servicemap/v2/announcement/` | 1 hour | 10/min* | Public announcements |
+
+*Rate limit only applies to cache misses (requests that fetch fresh data). Cached responses are unlimited.
 
 ## Cache Management
 
-- **Status**: `GET /api/cache/status` - View cache statistics
+- **Status**: `GET /api/cache/status` - View cache statistics and rate limit status
 - **Clear all**: `DELETE /api/cache/clear` - Clear entire cache
 - **Clear pattern**: `DELETE /api/cache/clear/{pattern}` - Clear specific cache entries
+
+## Rate Limiting
+
+- **Limit**: 10 requests per minute per IP address per endpoint
+- **Scope**: Only applies to requests that miss the cache (fetch fresh data)
+- **Bypass**: All cached responses are served without rate limiting
+- **Reset**: Rate limit window resets every 60 seconds
+- **Headers**: Rate limit info included in response headers
+- **Error**: HTTP 429 when limit exceeded with retry-after information
 
 ## Configuration
 

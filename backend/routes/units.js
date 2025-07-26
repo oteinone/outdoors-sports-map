@@ -2,10 +2,12 @@ const express = require('express');
 const axios = require('axios');
 const { createCacheMiddleware } = require('../middleware/cache');
 const { handleApiError } = require('../utils/apiErrorHandler');
+const { createCacheAwareRateLimit } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
-// Apply caching middleware for units (1h TTL)
+// Apply rate limiting (only for cache misses) and caching middleware
+router.use(createCacheAwareRateLimit('unit'));
 router.use(createCacheMiddleware('unit'));
 
 // Proxy route for units

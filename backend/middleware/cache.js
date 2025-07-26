@@ -36,11 +36,19 @@ function createCacheMiddleware(type) {
     const freshData = freshCache.get(cacheKey);
     
     if (freshData) {
+      // Mark as cache hit for rate limiting
+      if (res.markCacheHit) {
+        res.markCacheHit();
+      }
+      
       // If fresh cache contains an error but stale cache has valid data, use stale
       if (freshData.error) {
         const staleData = staleCache.get(cacheKey);
         if (staleData) {
           console.log(`Fresh cache has error, serving valid stale cache for ${cacheKey}`);
+          if (res.markCacheHit) {
+            res.markCacheHit();
+          }
           return res.json(staleData);
         } else {
           console.log('Stale cache empty for ${cacheKey}')
@@ -51,17 +59,22 @@ function createCacheMiddleware(type) {
       return res.json(freshData);
     }
     
+    // If we got this far we 
     console.log(`Fresh cache MISS for ${cacheKey}`);
     
     // Store original res.json to intercept all responses
     const originalJson = res.json;
     
     res.json = function(data) {
-      // If this is an error response, try serving stale cache first
+      // If this is an error response, we serve stale data if it doesn't have errors
       if (data.error) {
         const staleData = staleCache.get(cacheKey);
-        if (staleData && !staleData.error) {
+        if (staleData) {
           console.log(`Error response received, serving stale cache instead for ${cacheKey}`);
+          // Mark as cache hit for rate limiting since we're serving cached data
+          if (res.markCacheHit) {
+            res.markCacheHit();
+          }
           // Cache the error in fresh cache for rate limiting
           freshCache.set(cacheKey, data, ttlConfig.fresh);
           // Return stale data instead of error
@@ -73,7 +86,7 @@ function createCacheMiddleware(type) {
       // Always cache in fresh cache (both valid and error responses)
       freshCache.set(cacheKey, data, ttlConfig.fresh);
       console.log(`Cached in fresh cache ${cacheKey} for ${ttlConfig.fresh}s`);
-      
+
       // Only cache valid responses in stale cache (for long-term fallback)
       if (!data.error) {
         staleCache.set(cacheKey, data, ttlConfig.stale);
@@ -82,11 +95,6 @@ function createCacheMiddleware(type) {
       
       // Call original res.json
       return originalJson.call(this, data);
-    };
-
-    // Add helper method to check if error should trigger stale cache
-    res.shouldTryStaleCache = function(error) {
-      return shouldTryStaleCache(error);
     };
     
     next();

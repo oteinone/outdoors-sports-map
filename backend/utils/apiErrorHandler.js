@@ -14,21 +14,26 @@ function handleApiError(error, res, apiName) {
   // For server errors, timeouts, and network issues, let cache middleware handle stale fallback
   if (shouldTryStaleCache(error)) {
     if (error.code === 'ECONNABORTED') {
-      return res.status(504).json({ 
+      // Let cache middleware try stale cache, set status after
+      res.status(504);
+      return res.json({ 
         error: 'Gateway timeout', 
         message: `${apiName} API is not responding` 
       });
     }
     
     if (error.response && error.response.status >= 500) {
-      return res.status(error.response.status).json({
+      // Let cache middleware try stale cache, set status after
+      res.status(error.response.status);
+      return res.json({
         error: 'API Server Error',
         message: error.response.data || error.message
       });
     }
     
-    // Network/connection error
-    return res.status(503).json({ 
+    // Network/connection error - let cache middleware try stale cache
+    res.status(503);
+    return res.json({ 
       error: 'Service unavailable', 
       message: `Failed to connect to ${apiName} API` 
     });
