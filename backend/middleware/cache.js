@@ -11,7 +11,7 @@ const CACHE_TTL = {
     stale: 24 * 60 * 60     // 24 hours fallback
   },
   unit: {
-    fresh: 5 * 60,          // 5 minutes (units need fresh condition data)
+    fresh: 10 * 60,          // 5 minutes (units need fresh condition data)
     stale: 24 * 60 * 60     // 24 hours fallback
   },
   announcement: {

@@ -83,11 +83,12 @@ COPY --chown=node:node package*.json ./
 COPY --chown=node:node frontend/package*.json frontend/*yarn* ./frontend/
 COPY --chown=node:node backend/package*.json ./backend/
 
+WORKDIR /app
+
 # Install all dependencies via workspace
 RUN npm install
 
 # Copy source code
-WORKDIR /app
 COPY --chown=node:node . .
 
 # Copy entrypoint
