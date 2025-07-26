@@ -2,6 +2,8 @@
 
 The Outdoor Exercise Map is an open communications channel for checking the condition of outdoor sports facilities in Helsinki, Espoo, Vantaa and Kirkkonummi. The Outdoor Exercise Map helps the inhabitants of the municipality find up-to-date information on the City's outdoor sports services. Currently, the services encompasses the skiing tracks, ice-skating fields, swimming places and other public outdoor services maintained by the cities.
 
+This fork was created because original ulkoliikunta.fi site did 
+
 ## Architecture
 
 This is a full-stack application with the following structure:
@@ -144,3 +146,20 @@ Release pipeline is triggered by tag. Tag should be named like 'release-<version
 Staging url: [https://ulkoliikunta.stage.hel.ninja](https://ulkoliikunta.stage.hel.ninja)
 
 Production url: [https://ulkoliikunta.fi](https://ulkoliikunta.fi)
+
+## Attribution
+
+This project is forked from the [City of Helsinki Outdoor Sports Map](https://github.com/City-of-Helsinki/outdoors-sports-map) and includes some architectural changes:
+
+- **Original Project**: City of Helsinki Outdoor Sports Map
+- **Original Authors**: Christoffer Niska, Jukka-Pekka Salo, and contributors
+- **Fork Maintainer**: Otto Teinonen
+- **License**: MIT License
+
+### Changes in This Fork:
+- Refactored to monorepo structure with separate frontend/backend
+- Added Express backend with API caching and proxy functionality
+- Implemented Docker containerization with multi-stage builds
+- Enhanced reliability with stale cache fallback strategies
+
+The original application provides outdoor sports facility information for Helsinki, Espoo, Vantaa, and Kirkkonummi municipalities.

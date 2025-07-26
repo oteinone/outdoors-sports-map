@@ -23,11 +23,14 @@
     "not op_mini all"
   ],
   "repository": {
-    "url": "https://github.com/City-of-Helsinki/outdoors-sports-map.git",
+    "url": "https://github.com/oteinone/outdoors-sports-map.git",
     "type": "git"
   },
-  "author": "Jukka-Pekka Salo <jpsalo@zoho.com>",
-  "contributors": [],
+  "author": "Otto Teinonen <otto.teinonen@gmail.com>",
+  "contributors": [
+    "Jukka-Pekka Salo <jpsalo@zoho.com> (Original City of Helsinki version)",
+    "Christoffer Niska (Original author)"
+  ],
   "dependencies": {
     "@babel/plugin-transform-nullish-coalescing-operator": "^7.25.9",
     "@react-leaflet/core": "2.1.0",
