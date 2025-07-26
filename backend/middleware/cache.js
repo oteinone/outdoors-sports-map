@@ -42,6 +42,8 @@ function createCacheMiddleware(type) {
         if (staleData) {
           console.log(`Fresh cache has error, serving valid stale cache for ${cacheKey}`);
           return res.json(staleData);
+        } else {
+          console.log('Stale cache empty for ${cacheKey}')
         }
       }
       
