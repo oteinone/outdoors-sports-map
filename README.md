@@ -103,27 +103,9 @@ The application is now available at [http://localhost:3000](http://localhost:300
 
 Make sure port `8080` is free.
 
-Pass build-time variables (replace `<VAR_X>` with actual variable name from `.env` file) to docker image and build with:
+Use `docker-compose up`
 
-```
-source .env
-docker build \
---build-arg <VAR_1>=${<VAR_1>} \
---build-arg <VAR_N>=${<VAR_N>} \
--t outdoors-sports-map .
-```
-
-_(you can add `--no-cache` to the command if you don't want to use cache from previous build)_
-
-Start docker container with:
-
-```
-docker container run -p 8080:8080 -d outdoors-sports-map
-```
-
-_(you can add `--name outdoors-sports-map` to the command for easier referencing)_
-
-The application is now available at [http://localhost](http://localhost/).
+The application is now available at [http://localhost:8080](http://localhost:8080/).
 
 ## Environments
 
