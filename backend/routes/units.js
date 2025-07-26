@@ -33,23 +33,45 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('Units API Error:', error.message);
     
+    // For server errors, timeouts, and network issues, try serving stale cache
+    const shouldTryStaleCache = 
+      error.code === 'ECONNABORTED' || // Timeout
+      error.code === 'ECONNREFUSED' || // Connection refused
+      error.code === 'ENOTFOUND' ||    // DNS resolution failed
+      (error.response && error.response.status >= 500); // Server errors
+    
+    if (shouldTryStaleCache && res.tryStaleCache && res.tryStaleCache()) {
+      // Successfully served stale cache
+      return;
+    }
+    
+    // No stale cache available or client error - return appropriate error
     if (error.code === 'ECONNABORTED') {
       return res.status(504).json({ 
         error: 'Gateway timeout', 
-        message: 'Units API is not responding' 
+        message: 'Units API is not responding and no cached data available' 
+      });
+    }
+    
+    if (error.response && error.response.status >= 500) {
+      return res.status(error.response.status).json({
+        error: 'API Server Error',
+        message: error.response.data || error.message
       });
     }
     
     if (error.response) {
+      // Client error (4xx) - don't use stale cache
       return res.status(error.response.status).json({
         error: 'API Error',
         message: error.response.data || error.message
       });
     }
     
-    res.status(500).json({ 
-      error: 'Internal server error', 
-      message: 'Failed to fetch units data' 
+    // Network/connection error
+    res.status(503).json({ 
+      error: 'Service unavailable', 
+      message: 'Failed to connect to units API and no cached data available' 
     });
   }
 });
