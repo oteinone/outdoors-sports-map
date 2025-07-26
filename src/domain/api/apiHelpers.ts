@@ -47,8 +47,20 @@ export const stringifyQuery = (query: Record<string, any>): string =>
 export const createRequest = (url: string, init?: RequestInit): Request =>
   new Request(url, init);
 
-export const createUrl = (url: string, params: Record<string, any>): string =>
-  `${API_BASE_URL || ""}/${url}${params ? `?${stringifyQuery(params)}` : ""}`;
+export const createUrl = (url: string, params: Record<string, any>): string => {
+  // Map service endpoints to backend proxy routes
+  const endpointMapping: Record<string, string> = {
+    'service/': 'services',
+    'unit/': 'units', 
+    'announcement/': 'announcements'
+  };
+  
+  // Check if this endpoint should be proxied through backend
+  const mappedEndpoint = endpointMapping[url];
+  const baseUrl = mappedEndpoint ? `${API_BASE_URL}/${mappedEndpoint}` : `${API_BASE_URL}/${url}`;
+  
+  return `${baseUrl}${params ? `?${stringifyQuery(params)}` : ""}`;
+};
 
 export const digitransitApiHeaders = () => ({
   "Cache-Control": "no-cache",
