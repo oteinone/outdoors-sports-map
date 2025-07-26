@@ -2,7 +2,7 @@
 
 The Outdoor Exercise Map is an open communications channel for checking the condition of outdoor sports facilities in Helsinki, Espoo, Vantaa and Kirkkonummi. The Outdoor Exercise Map helps the inhabitants of the municipality find up-to-date information on the City's outdoor sports services. Currently, the services encompasses the skiing tracks, ice-skating fields, swimming places and other public outdoor services maintained by the cities.
 
-This fork was created because original ulkoliikunta.fi site did 
+This fork was created because original ulkoliikunta.fi site is always down when people are checking if there is cyanobacteria ("sinilevä") at beaches. This site uses a backup cache ("stale cache") to serve old data if fresh data is not available.
 
 ## Architecture
 
@@ -20,9 +20,9 @@ outdoors-sports-map/
 
 The backend provides a caching layer for the Helsinki ServiceMap APIs to improve reliability and performance:
 
-- **Services API** (`/api/services`) - 24 hour cache
-- **Units API** (`/api/units`) - 1 hour cache  
-- **Announcements API** (`/api/announcements`) - 1 hour cache
+- **Services API** (`/api/services`)
+- **Units API** (`/api/units`) 
+- **Announcements API** (`/api/announcements`)
 
 ## Development
 
