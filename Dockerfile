@@ -1,7 +1,7 @@
 # ===============================================
 # Base Node.js image for both frontend and backend
 # ===============================================
-FROM public.ecr.aws/docker/library/node:22.11.0-bookworm-slim AS nodebase
+FROM public.ecr.aws/docker/library/node:22.17.1-bookworm-slim AS nodebase
 
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
@@ -31,7 +31,7 @@ WORKDIR /app/backend
 COPY --chown=node:node backend/package*.json ./
 
 # Install backend dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --only=production && npm cache clean --force
 
 # Copy backend source code
 COPY --chown=node:node backend/ ./
@@ -52,7 +52,7 @@ WORKDIR /app/frontend
 COPY --chown=node:node frontend/package*.json frontend/*yarn* ./
 
 # Install frontend dependencies and update browserslist
-RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile && yarn cache clean; else npm ci; fi
+RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile && yarn cache clean; else npm install; fi
 
 # ===============================================
 # Frontend build stage
@@ -60,18 +60,7 @@ RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile && yarn cache clean
 FROM frontend-deps AS frontend-builder
 
 # Build arguments for React app
-ARG REACT_APP_API_URL
-ARG REACT_APP_DIGITRANSIT_API_URL
-ARG REACT_APP_DIGITRANSIT_API_KEY
-ARG REACT_APP_APP_NAME
-ARG REACT_APP_SITE_WIDE_NOTIFICATION_ENABLED
-ARG REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_FI
-ARG REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_SV
-ARG REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_EN
-ARG REACT_APP_SITE_WIDE_NOTIFICATION_FI
-ARG REACT_APP_SITE_WIDE_NOTIFICATION_SV
-ARG REACT_APP_SITE_WIDE_NOTIFICATION_EN
-ARG GENERATE_SITEMAP
+ARG REACT_APP_API_URL REACT_APP_DIGITRANSIT_API_URL REACT_APP_DIGITRANSIT_API_KEY REACT_APP_APP_NAME REACT_APP_SITE_WIDE_NOTIFICATION_ENABLED REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_FI REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_SV REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_EN REACT_APP_SITE_WIDE_NOTIFICATION_FI REACT_APP_SITE_WIDE_NOTIFICATION_SV REACT_APP_SITE_WIDE_NOTIFICATION_EN GENERATE_SITEMAP
 
 # Copy frontend source code
 COPY --chown=node:node frontend/ ./
@@ -94,15 +83,7 @@ COPY --chown=node:node package*.json ./
 COPY --chown=node:node frontend/package*.json frontend/*yarn* ./frontend/
 COPY --chown=node:node backend/package*.json ./backend/
 
-# Install root dependencies (for dev scripts)
-RUN npm install
-
-# Install frontend dependencies
-WORKDIR /app/frontend
-RUN if [ -f yarn.lock ]; then yarn install && yarn cache clean; else npm install; fi
-
-# Install backend dependencies  
-WORKDIR /app/backend
+# Install all dependencies via workspace
 RUN npm install
 
 # Copy source code

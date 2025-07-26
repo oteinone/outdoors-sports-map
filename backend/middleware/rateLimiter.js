@@ -1,4 +1,4 @@
-const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator, rateLimit } = require('express-rate-limit');
 
 /**
  * Rate limiter that only applies when cache is missed
@@ -8,7 +8,7 @@ const rateLimit = require('express-rate-limit');
 // Create the base rate limiter
 const apiRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute window
-  max: 10, // Limit each IP to 10 requests per windowMs for cache misses
+  max: 5, // Limit each IP to 10 requests per windowMs for cache misses
   message: {
     error: 'Too many API requests',
     message: 'You have exceeded the rate limit for uncached requests. Please try again later.',
@@ -19,15 +19,20 @@ const apiRateLimit = rateLimit({
   
   // Custom key generator - include endpoint type in the key
   keyGenerator: (req) => {
-    const endpoint = req.originalUrl.split('/')[2] || 'unknown'; // Extract 'services', 'units', etc.
-    return `${req.ip}:${endpoint}`;
+    //const endpoint = req.originalUrl.split('/')[2] || 'unknown'; // Extract 'services', 'units', etc.
+    console.log(`Key ${req.ip}`);
+    return `${ipKeyGenerator(req.ip)}`;
+
+    //return `${ipKeyGenerator(req.ip)}:${endpoint}`;
   },
 
   // Don't count requests that hit the cache
-  skip: (req) => {
-    return req.cacheHit === true;
+  skipSuccessfulRequests: true,
+  skipFailedRequests: false,
+  requestWasSuccessful: (req, res) => {
+    console.log(`Request was successful ${res.cacheHit === true}`);
+    return res.cacheHit === true;
   },
-
   // Custom handler for rate limit exceeded
   handler: (req, res) => {
     const endpoint = req.originalUrl.split('/')[2] || 'unknown';
@@ -51,24 +56,11 @@ const apiRateLimit = rateLimit({
  */
 function createCacheAwareRateLimit(type) {
   return (req, res, next) => {
-    // Store the original res.json to detect cache hits
-    const originalJson = res.json;
-    let cacheHit = false;
-
-    // Override res.json to detect if response came from cache
-    res.json = function(data) {
-      // Check if this response includes cache hit indicators
-      // We'll set this flag in the cache middleware
-      req.cacheHit = cacheHit;
-      
-      // Call original res.json
-      return originalJson.call(this, data);
-    };
 
     // Add method to mark cache hits
     res.markCacheHit = function() {
-      cacheHit = true;
-      req.cacheHit = true;
+      console.log(`Cache hit marked as true!`)
+      res.cacheHit = true;
     };
 
     // Apply rate limiting

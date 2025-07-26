@@ -39,7 +39,6 @@ router.get('/status', async (req, res) => {
     });
   }
 });
-/*
 // Clear all cache
 router.delete('/clear', (req, res) => {
   try {
@@ -77,5 +76,4 @@ router.delete('/clear/:pattern', (req, res) => {
     });
   }
 });
-*/
 module.exports = router;
