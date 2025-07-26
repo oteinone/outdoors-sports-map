@@ -86,14 +86,23 @@ function createCacheMiddleware(type) {
 
     // Add helper method to check if error should trigger stale cache
     res.shouldTryStaleCache = function(error) {
-      return error.code === 'ECONNABORTED' || // Timeout
-             error.code === 'ECONNREFUSED' || // Connection refused
-             error.code === 'ENOTFOUND' ||    // DNS resolution failed
-             (error.response && error.response.status >= 500); // Server errors
+      return shouldTryStaleCache(error);
     };
     
     next();
   };
+}
+
+/**
+ * Check if error should trigger stale cache fallback
+ * @param {Error} error - The error object to check
+ * @returns {boolean} True if error should trigger stale cache
+ */
+function shouldTryStaleCache(error) {
+  return error.code === 'ECONNABORTED' || // Timeout
+         error.code === 'ECONNREFUSED' || // Connection refused
+         error.code === 'ENOTFOUND' ||    // DNS resolution failed
+         (error.response && error.response.status >= 500); // Server errors
 }
 
 /**
@@ -161,5 +170,6 @@ module.exports = {
   getCacheStats,
   clearCache,
   clearCacheByPattern,
+  shouldTryStaleCache,
   CACHE_TTL
 };

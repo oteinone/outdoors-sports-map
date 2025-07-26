@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const { createCacheMiddleware } = require('../middleware/cache');
+const { handleApiError } = require('../utils/apiErrorHandler');
 
 const router = express.Router();
 
@@ -31,45 +32,7 @@ router.get('/', async (req, res) => {
     res.json(response.data);
     
   } catch (error) {
-    console.error('Units API Error:', error.message);
-    
-    // For server errors, timeouts, and network issues, let cache middleware handle stale fallback
-    if (res.shouldTryStaleCache && res.shouldTryStaleCache(error)) {
-      if (error.code === 'ECONNABORTED') {
-        return res.status(504).json({ 
-          error: 'Gateway timeout', 
-          message: 'Units API is not responding' 
-        });
-        
-      }
-      
-      if (error.response && error.response.status >= 500) {
-        return res.status(error.response.status).json({
-          error: 'API Server Error',
-          message: error.response.data || error.message
-        });
-      }
-      
-      // Network/connection error
-      return res.status(503).json({ 
-        error: 'Service unavailable', 
-        message: 'Failed to connect to units API' 
-      });
-    }
-    
-    // Client errors (4xx) - don't use stale cache, return error directly
-    if (error.response) {
-      return res.status(error.response.status).json({
-        error: 'API Error',
-        message: error.response.data || error.message
-      });
-    }
-    
-    // Other errors
-    res.status(500).json({ 
-      error: 'Internal server error', 
-      message: 'Failed to fetch units data' 
-    });
+    handleApiError(error, res, 'Units');
   }
 });
 
