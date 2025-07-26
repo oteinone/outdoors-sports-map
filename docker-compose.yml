@@ -1,11 +1,35 @@
+version: '3.8'
+
 services:
+  # Production setup - single container with backend serving frontend
   app:
     container_name: outdoors-sports-map
     build:
       context: .
-      target: ${DOCKER_TARGET:-development}
-    volumes:
-      - ".:/app"
-      - "/app/node_modules"
+      target: ${DOCKER_TARGET:-production}
+      args:
+        # Frontend build arguments (with sensible defaults)
+        - REACT_APP_API_URL=${REACT_APP_API_URL:-/api}
+        - REACT_APP_DIGITRANSIT_API_URL=${REACT_APP_DIGITRANSIT_API_URL:-https://api.digitransit.fi/geocoding/v1}
+        - REACT_APP_DIGITRANSIT_API_KEY=${REACT_APP_DIGITRANSIT_API_KEY:-}
+        - REACT_APP_APP_NAME=${REACT_APP_APP_NAME:-outdoors-sports-map}
+        - REACT_APP_SITE_WIDE_NOTIFICATION_ENABLED=${REACT_APP_SITE_WIDE_NOTIFICATION_ENABLED:-false}
+        - REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_FI=${REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_FI:-}
+        - REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_SV=${REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_SV:-}
+        - REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_EN=${REACT_APP_SITE_WIDE_NOTIFICATION_TITLE_EN:-}
+        - REACT_APP_SITE_WIDE_NOTIFICATION_FI=${REACT_APP_SITE_WIDE_NOTIFICATION_FI:-}
+        - REACT_APP_SITE_WIDE_NOTIFICATION_SV=${REACT_APP_SITE_WIDE_NOTIFICATION_SV:-}
+        - REACT_APP_SITE_WIDE_NOTIFICATION_EN=${REACT_APP_SITE_WIDE_NOTIFICATION_EN:-}
+        - GENERATE_SITEMAP=${GENERATE_SITEMAP:-false}
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
     ports:
-      - "3000:3000"
+      - "${PORT:-8080}:3001"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

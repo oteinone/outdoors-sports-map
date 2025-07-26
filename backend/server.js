@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 // Import routes
 const servicesRoute = require('./routes/services');
@@ -28,6 +29,17 @@ app.use('/api/services', servicesRoute);
 app.use('/api/units', unitsRoute);
 app.use('/api/announcements', announcementsRoute);
 app.use('/api/cache', cacheRoute);
+
+// Serve static files from frontend build in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendBuildPath = path.join(__dirname, '../frontend/build');
+  app.use(express.static(frontendBuildPath));
+  
+  // Handle client-side routing - serve index.html for all non-API routes
+  app.get('/{*any}', (req, res) => {
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  });
+}
 
 // Start server
 app.listen(PORT, () => {

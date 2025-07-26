@@ -1,57 +1,31 @@
 {
-  "name": "outdoors-sports-map",
+  "name": "outdoors-sports-map-monorepo",
   "version": "2.6.0",
   "private": true,
+  "description": "Outdoor Exercise Map - Full Stack Application",
   "scripts": {
-    "start": "cross-env NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
-    "build": "ts-node --transpile-only --project ./scripts/tsconfig.json ./scripts/generate-sitemap.ts && cross-env NODE_ENV=production NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
-    "test": "react-scripts test --transformIgnorePatterns 'node_modules/(?!remark-breaks)/'",
-    "eject": "react-scripts eject",
-    "fetch-types": "flow-typed install",
-    "flow": "flow",
-    "lint": "eslint ./src"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "start": "npm run start:backend",
+    "start:frontend": "cd frontend && npm start",
+    "start:backend": "cd backend && npm start",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "echo 'Backend needs no build step'",
+    "test": "npm run test:frontend",
+    "test:frontend": "cd frontend && npm test",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "clean": "npm run clean:frontend && npm run clean:backend",
+    "clean:frontend": "cd frontend && rm -rf node_modules build",
+    "clean:backend": "cd backend && rm -rf node_modules",
+    "production": "NODE_ENV=production npm run start:backend"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "rules": {
-      "import/order": [
-        "error",
-        {
-          "groups": [
-            [
-              "builtin",
-              "external"
-            ],
-            [
-              "internal",
-              "parent",
-              "index",
-              "sibling",
-              "object"
-            ]
-          ],
-          "newlines-between": "always",
-          "alphabetize": {
-            "order": "asc"
-          }
-        }
-      ],
-      "react/function-component-definition": [
-        "error",
-        {
-          "namedComponents": "function-declaration"
-        }
-      ],
-      "react/destructuring-assignment": "error"
-    }
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not op_mini all"
+  "workspaces": [
+    "frontend",
+    "backend"
   ],
   "repository": {
     "url": "https://github.com/City-of-Helsinki/outdoors-sports-map.git",
@@ -59,76 +33,10 @@
   },
   "author": "Jukka-Pekka Salo <jpsalo@zoho.com>",
   "contributors": [],
-  "dependencies": {
-    "@babel/plugin-transform-nullish-coalescing-operator": "^7.25.9",
-    "@react-leaflet/core": "2.1.0",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^29.5.12",
-    "@types/leaflet": "1.9.14",
-    "@types/lodash": "^4.17.5",
-    "@types/node": "^18.11.19",
-    "@types/react": "^17.0.2",
-    "@types/react-dom": "^17.0.2",
-    "@types/react-router-dom": "^5.3.3",
-    "@types/redux-actions": "^2.6.5",
-    "axios": "^1.7.2",
-    "bootstrap": "5.2.3",
-    "classnames": "^2.5.1",
-    "d3": "^7.9.0",
-    "date-fns": "^2.30.0",
-    "hds-react": "^2.17.1",
-    "history": "4.10.1",
-    "husky": "^4.3.8",
-    "i18next": "^19.1.0",
-    "i18next-browser-languagedetector": "^4.0.1",
-    "leaflet": "1.9.4",
-    "leaflet-geometryutil": "^0.10.3",
-    "leaflet.heightgraph": "^1.4.0",
-    "lodash": "^4.17.21",
-    "moment": "^2.30.1",
-    "normalize.css": "^8.0.1",
-    "normalizr": "^3.6.2",
-    "react": "17.0.2",
-    "react-bootstrap": "1.6.7",
-    "react-dom": "17.0.2",
-    "react-helmet-async": "^1.3.0",
-    "react-hot-loader": "^4.13.1",
-    "react-i18next": "^11.18.6",
-    "react-leaflet": "4.2.1",
-    "react-markdown": "^8.0.7",
-    "react-redux": "^8.1.3",
-    "react-router": "5.3.4",
-    "react-router-dom": "5.3.4",
-    "react-scripts": "4.0.3",
-    "redux": "^4.2.1",
-    "redux-actions": "^2.6.5",
-    "redux-devtools-extension": "^2.13.9",
-    "redux-persist": "^6.0.0",
-    "redux-saga": "^1.3.0",
-    "regenerator-runtime": "^0.14.1",
-    "remark-breaks": "3.0.3",
-    "sass": "^1.77.5",
-    "shell-quote": "^1.8.1",
-    "terser": "^5.31.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^4.9.5",
-    "web-vitals": "^1.1.2",
-    "whatwg-fetch": "^3.6.20"
+  "engines": {
+    "node": ">=16.0.0"
   },
   "devDependencies": {
-    "@types/enzyme": "^3.10.18",
-    "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
-    "cross-env": "^7.0.3",
-    "enzyme": "^3.11.0",
-    "eslint-config-react-app": "^7.0.1",
-    "prettier": "^3.3.2"
-  },
-  "overrides": {
-    "@types/react": "17.0.2"
-  },
-  "resolutions": {
-    "@types/react": "17.0.2"
+    "concurrently": "^8.2.2"
   }
 }

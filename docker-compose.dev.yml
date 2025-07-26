@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Development setup - separate frontend and backend services
+  backend:
+    container_name: outdoors-sports-map-backend
+    build:
+      context: .
+      target: development
+    working_dir: /app/backend
+    command: ["npm", "run", "dev"]
+    volumes:
+      - "./backend:/app/backend"
+      - "/app/backend/node_modules"
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    container_name: outdoors-sports-map-frontend
+    build:
+      context: .
+      target: development
+    working_dir: /app/frontend
+    command: ["npm", "start"]
+    volumes:
+      - "./frontend:/app/frontend"
+      - "/app/frontend/node_modules"
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:3001/api
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

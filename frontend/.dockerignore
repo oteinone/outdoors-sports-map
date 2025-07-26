@@ -1,0 +1,10 @@
+*
+
+!.prod/
+!docker-entrypoint.sh
+!public/
+!package*.json
+!src/
+!*yarn*
+!tsconfig.json
+!scripts/

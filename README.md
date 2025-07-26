@@ -1,33 +1,80 @@
 # Outdoor Exercise Map
 
-The Outdoor Exercise Map is an open communications channel for checking the condition of outdoor sports facilities in Helsinki, Espoo, Vantaa and Kirkkonummi. The Outdoor Exercise Map helps the inhabitants of the municipality find up-to-date information on the City’s outdoor sports services. Currently, the services encompasses the skiing tracks, ice-skating fields, swimming places and other public outdoor services maintained by the cities.
+The Outdoor Exercise Map is an open communications channel for checking the condition of outdoor sports facilities in Helsinki, Espoo, Vantaa and Kirkkonummi. The Outdoor Exercise Map helps the inhabitants of the municipality find up-to-date information on the City's outdoor sports services. Currently, the services encompasses the skiing tracks, ice-skating fields, swimming places and other public outdoor services maintained by the cities.
+
+## Architecture
+
+This is a full-stack application with the following structure:
+
+```
+outdoors-sports-map/
+├── frontend/          # React TypeScript application
+├── backend/           # Node.js Express API proxy with caching
+├── package.json       # Root package.json with workspace scripts
+└── README.md         # This file
+```
+
+### Backend API Proxy
+
+The backend provides a caching layer for the Helsinki ServiceMap APIs to improve reliability and performance:
+
+- **Services API** (`/api/services`) - 24 hour cache
+- **Units API** (`/api/units`) - 1 hour cache  
+- **Announcements API** (`/api/announcements`) - 1 hour cache
 
 ## Development
 
-Follow the instructions to set up local development environment. Alternatively, you can use Docker ([see below](#development-with-docker)).
-
 ### Prerequisites
 
--   Preferably use current Node.js LTS
--   Install [NPM](https://www.npmjs.com/) and [Yarn](https://yarnpkg.com)
+-   Node.js LTS (≥16.0.0)
+-   NPM and/or Yarn
 
-### Setup
+### Quick Start
 
-After cloning this repository, create a new `.env` file from the provided `.env.example` file:
+1. **Install dependencies for both frontend and backend:**
+   ```bash
+   npm run install:all
+   ```
 
+2. **Start both development servers:**
+   ```bash
+   npm run dev
+   ```
+   
+   This runs:
+   - Backend API proxy on http://localhost:3001
+   - Frontend React app on http://localhost:3000
+
+### Individual Commands
+
+**Frontend only:**
+```bash
+npm run dev:frontend
+# OR
+cd frontend && npm start
 ```
-cp .env.example .env
+
+**Backend only:**
+```bash
+npm run dev:backend  
+# OR
+cd backend && npm start
 ```
 
-### Running the development environment
+### Environment Configuration
 
-To start development server, run:
-
+**For local development:**
+```bash
+# Frontend environment (already configured for local backend proxy)
+cp frontend/.env.example frontend/.env
 ```
-yarn start
-```
 
-The application is now available at [http://localhost:3000](http://localhost:3000/).
+**For Docker builds:**
+```bash
+# Root environment (controls Docker build args)
+# Already created with sensible defaults
+# Customize .env file if needed for your deployment
+```
 
 ## Development with Docker
 
