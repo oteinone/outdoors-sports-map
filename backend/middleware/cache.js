@@ -57,6 +57,19 @@ function createCacheMiddleware(type) {
     const originalJson = res.json;
     
     res.json = function(data) {
+      // If this is an error response, try serving stale cache first
+      if (data.error) {
+        const staleData = staleCache.get(cacheKey);
+        if (staleData && !staleData.error) {
+          console.log(`Error response received, serving stale cache instead for ${cacheKey}`);
+          // Cache the error in fresh cache for rate limiting
+          freshCache.set(cacheKey, data, ttlConfig.fresh);
+          // Return stale data instead of error
+          return originalJson.call(this, staleData);
+        }
+        console.log(`Error response and no valid stale cache for ${cacheKey}`);
+      }
+      
       // Always cache in fresh cache (both valid and error responses)
       freshCache.set(cacheKey, data, ttlConfig.fresh);
       console.log(`Cached in fresh cache ${cacheKey} for ${ttlConfig.fresh}s`);
@@ -71,14 +84,12 @@ function createCacheMiddleware(type) {
       return originalJson.call(this, data);
     };
 
-    // Add a method to try serving stale cache on API failure
-    res.tryStaleCache = function() {
-      const staleData = staleCache.get(cacheKey);
-      if (staleData && !staleData.error) {
-        console.log(`Serving stale cache for ${cacheKey}`);
-        return res.json(staleData);
-      }
-      return false; // No valid stale data available
+    // Add helper method to check if error should trigger stale cache
+    res.shouldTryStaleCache = function(error) {
+      return error.code === 'ECONNABORTED' || // Timeout
+             error.code === 'ECONNREFUSED' || // Connection refused
+             error.code === 'ENOTFOUND' ||    // DNS resolution failed
+             (error.response && error.response.status >= 500); // Server errors
     };
     
     next();

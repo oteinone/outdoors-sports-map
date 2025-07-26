@@ -33,45 +33,41 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('Services API Error:', error.message);
     
-    // For server errors, timeouts, and network issues, try serving stale cache
-    const shouldTryStaleCache = 
-      error.code === 'ECONNABORTED' || // Timeout
-      error.code === 'ECONNREFUSED' || // Connection refused
-      error.code === 'ENOTFOUND' ||    // DNS resolution failed
-      (error.response && error.response.status >= 500); // Server errors
-    
-    if (shouldTryStaleCache && res.tryStaleCache && res.tryStaleCache()) {
-      // Successfully served stale cache
-      return;
-    }
-    
-    // No stale cache available or client error - return appropriate error
-    if (error.code === 'ECONNABORTED') {
-      return res.status(504).json({ 
-        error: 'Gateway timeout', 
-        message: 'Services API is not responding and no cached data available' 
+    // For server errors, timeouts, and network issues, let cache middleware handle stale fallback
+    if (res.shouldTryStaleCache && res.shouldTryStaleCache(error)) {
+      if (error.code === 'ECONNABORTED') {
+        return res.status(504).json({ 
+          error: 'Gateway timeout', 
+          message: 'Services API is not responding' 
+        });
+      }
+      
+      if (error.response && error.response.status >= 500) {
+        return res.status(error.response.status).json({
+          error: 'API Server Error',
+          message: error.response.data || error.message
+        });
+      }
+      
+      // Network/connection error
+      return res.status(503).json({ 
+        error: 'Service unavailable', 
+        message: 'Failed to connect to services API' 
       });
     }
     
-    if (error.response && error.response.status >= 500) {
-      return res.status(error.response.status).json({
-        error: 'API Server Error',
-        message: error.response.data || error.message
-      });
-    }
-    
+    // Client errors (4xx) - don't use stale cache, return error directly
     if (error.response) {
-      // Client error (4xx) - don't use stale cache
       return res.status(error.response.status).json({
         error: 'API Error',
         message: error.response.data || error.message
       });
     }
     
-    // Network/connection error
-    res.status(503).json({ 
-      error: 'Service unavailable', 
-      message: 'Failed to connect to services API and no cached data available' 
+    // Other errors
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      message: 'Failed to fetch services data' 
     });
   }
 });
