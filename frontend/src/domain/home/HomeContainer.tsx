@@ -6,7 +6,7 @@ import useFetchInitialData from "./useFetchInitialData";
 import useIsMobile from "../../common/hooks/useIsMobile";
 import ApplicationHeader from "../app/AppHeader";
 import AppInfoDropdown from "../app/AppInfoDropdown";
-import CookieConsent from "../app/CookieConsent";
+//import CookieConsent from "../app/CookieConsent";
 import routerPaths from "../app/appRoutes";
 import useIsUnitBrowserSearchView from "../app/useIsUnitBrowserSearchView";
 import MapComponent from "../map/MapComponent";
@@ -168,7 +168,6 @@ function HomeContainer() {
         isExpanded={isHomeContainerExpanded}
         toggleIsExpanded={toggleIsHomeContainerExpanded}
       />
-      <CookieConsent />
     </>
   );
 }
