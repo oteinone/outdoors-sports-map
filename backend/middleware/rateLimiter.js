@@ -20,19 +20,15 @@ const apiRateLimit = rateLimit({
   // Custom key generator - include endpoint type in the key
   keyGenerator: (req) => {
     //const endpoint = req.originalUrl.split('/')[2] || 'unknown'; // Extract 'services', 'units', etc.
-    console.log(`Key ${req.ip}`);
     return `${ipKeyGenerator(req.ip)}`;
-
-    //return `${ipKeyGenerator(req.ip)}:${endpoint}`;
   },
-
   // Don't count requests that hit the cache
   skipSuccessfulRequests: true,
   skipFailedRequests: false,
   requestWasSuccessful: (req, res) => {
-    console.log(`Request was successful ${res.cacheHit === true}`);
     return res.cacheHit === true;
   },
+
   // Custom handler for rate limit exceeded
   handler: (req, res) => {
     const endpoint = req.originalUrl.split('/')[2] || 'unknown';
@@ -59,7 +55,6 @@ function createCacheAwareRateLimit(type) {
 
     // Add method to mark cache hits
     res.markCacheHit = function() {
-      console.log(`Cache hit marked as true!`)
       res.cacheHit = true;
     };
 
